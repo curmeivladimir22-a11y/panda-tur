@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>PANDA TUR · Panel de control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Panou de administrare: antet roșu–mov ca pe site, tabel cu cererile, filtru pe status. */
+:root {
+  --paper: #F5F6FB; --card: #FFFFFF; --ink: #1A1830; --muted: #5F5C78; --line: #E3E2EE;
+  --gold: #FBBF24; --gold-ink: #3B0764; --brand: #B45309;
+  --new: #2563EB; --new-soft: #DBEAFE; --work: #B45309; --work-soft: #FEF3C7; --done: #047857; --done-soft: #D1FAE5;
+  --err: #B91C1C;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root {
+  --paper: #0F0D1C; --card: #1B1832; --ink: #F1EFFA; --muted: #A9A5C6; --line: #2E2A4B; --brand: #FBBF24;
+  --new: #93C5FD; --new-soft: #1E2A4A; --work: #FCD34D; --work-soft: #3A2E0F; --done: #6EE7B7; --done-soft: #0F3328; --err: #FCA5A5; color-scheme: dark; } }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 400 15px/1.5 var(--f-body); }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.top { background: linear-gradient(100deg, #FF1A1A 0%, #F0123C 30%, #B5179E 65%, #6D28D9 100%); color: #FFFFFF; }
+.top .in { max-width: 1200px; margin: 0 auto; padding: 14px max(16px, env(safe-area-inset-left, 0px)); display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.top img { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; object-position: 50% 30%; border: 3px solid var(--gold); }
+.top b { font: 800 22px var(--f-display); letter-spacing: .03em; } .top b span { color: var(--gold); }
+.top small { opacity: .9; font-weight: 600; }
+.top .right { margin-left: auto; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.top a { color: #FFFFFF; }
+main { max-width: 1200px; margin: 0 auto; padding: 24px max(16px, env(safe-area-inset-left, 0px)) 56px; display: grid; gap: 18px; }
+h1 { font: 800 28px/1.1 var(--f-display); margin: 0; }
+.muted { color: var(--muted); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 22px; }
+.login { max-width: 420px; margin: 40px auto 0; display: grid; gap: 14px; }
+.field { display: grid; gap: 5px; }
+.field label { font-size: 13px; font-weight: 600; color: var(--muted); }
+.field input, .field select { padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; background: var(--card); }
+.btn { border: 0; border-radius: 10px; padding: 11px 18px; font-weight: 700; cursor: pointer; background: linear-gradient(135deg, #FDE047, #FBBF24 45%, #F59E0B); color: var(--gold-ink); }
+.btn.ghost { background: transparent; border: 1px solid rgba(255,255,255,.6); color: #FFFFFF; padding: 8px 14px; }
+.btn.light { background: var(--card); border: 1px solid var(--line); color: var(--ink); padding: 8px 14px; }
+.btn:disabled { opacity: .5; cursor: wait; }
+.err { color: var(--err); font-weight: 600; font-size: 14px; }
+.bar { display: flex; gap: 10px; align-items: end; flex-wrap: wrap; justify-content: space-between; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip { border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 7px 14px; font-weight: 600; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.chip i { font-style: normal; font-family: var(--f-mono); font-size: 12px; padding: 1px 7px; border-radius: 999px; background: var(--paper); color: var(--ink); }
+.table-wrap { overflow-x: auto; background: var(--card); border: 1px solid var(--line); border-radius: 14px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 980px; }
+th, td { text-align: left; padding: 11px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 12px; color: var(--muted); font-weight: 700; letter-spacing: .03em; text-transform: uppercase; position: sticky; top: 0; background: var(--card); }
+tr:last-child td { border-bottom: 0; }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.st { padding: 6px 8px; border-radius: 8px; border: 1px solid transparent; font-weight: 700; cursor: pointer; }
+.st[data-v="новая"] { background: var(--new-soft); color: var(--new); }
+.st[data-v="в работе"] { background: var(--work-soft); color: var(--work); }
+.st[data-v="закрыта"] { background: var(--done-soft); color: var(--done); }
+.empty { padding: 40px; text-align: center; color: var(--muted); }
+.toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--ink); color: var(--paper); padding: 10px 16px; border-radius: 10px; font-weight: 600; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+<header class="top"><div class="in">
+  <img src="img/panda-logo2.jpg" alt="">
+  <b>PANDA <span>TUR</span></b><small>· Panel de control</small>
+  <div class="right"><span id="who"></span><button class="btn ghost" id="logout" hidden>Ieșire</button><a href="./">← Site</a></div>
+</div></header>
+
+<main>
+  <!-- LOGARE -->
+  <form class="card login" id="loginForm" hidden>
+    <h1>Intrare în panou</h1>
+    <p class="muted">Panoul e doar pentru angajații PANDA TUR. Intră cu emailul și parola contului de administrator.</p>
+    <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="username" required></div>
+    <div class="field"><label for="pass">Parolă</label><input id="pass" type="password" autocomplete="current-password" required></div>
+    <p class="err" id="loginErr" hidden></p>
+    <button class="btn" id="loginBtn" type="submit">Intră</button>
+  </form>
+
+  <!-- PANOU -->
+  <section id="panel" hidden style="display:grid;gap:18px">
+    <div class="bar">
+      <div><h1>Cereri și rezervări</h1><p class="muted" id="sub">Cele mai noi sunt sus.</p></div>
+      <button class="btn light" id="reload" type="button">↻ Reîncarcă</button>
+    </div>
+    <div class="chips" id="filters" role="group" aria-label="Filtru după status"></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Data</th><th>Cod</th><th>Serviciu</th><th>Perioada / detalii</th><th>Client</th><th>Contact</th><th>Total</th><th>Status</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+  <p class="muted" id="loading">Se încarcă…</p>
+</main>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function () {
+  "use strict";
+  // Adresa Supabase și cheia publică vin din setările Vercel prin /api/config, nu din cod.
+  var STATUSES = ["новая", "в работе", "закрыта"];
+  var $ = function (s) { return document.querySelector(s); };
+  var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
+  var toast = function (m) { var t = $("#toast"); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { t.hidden = true; }, 2600); };
+  var rows = [], filter = "toate";
+
+  if (!window.supabase) { $("#loading").textContent = "Nu s-a putut încărca biblioteca Supabase. Verifică internetul și reîncarcă pagina."; return; }
+  var sb = null;
+  fetch("/api/config", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (cfg) {
+    if (!cfg || !cfg.url || !cfg.key) throw new Error((cfg && cfg.error) || "config");
+    sb = window.supabase.createClient(cfg.url, cfg.key);
+    start();
+  }).catch(function (e) { $("#loading").textContent = "Panoul nu e configurat: lipsesc SUPABASE_URL / SUPABASE_KEY în setările Vercel."; });
+
+  function showLogin() { $("#loading").hidden = true; $("#panel").hidden = true; $("#loginForm").hidden = false; $("#logout").hidden = true; $("#who").textContent = ""; }
+  function showPanel(user) { $("#loading").hidden = true; $("#loginForm").hidden = true; $("#panel").hidden = false; $("#logout").hidden = false; $("#who").textContent = user.email; load(); }
+
+  $("#loginForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var err = $("#loginErr"); err.hidden = true; $("#loginBtn").disabled = true;
+    var r = await sb.auth.signInWithPassword({ email: $("#email").value.trim(), password: $("#pass").value });
+    $("#loginBtn").disabled = false;
+    if (r.error) { err.textContent = "Email sau parolă greșită."; err.hidden = false; return; }
+    $("#pass").value = ""; showPanel(r.data.user);
+  });
+  $("#logout").onclick = async function () { await sb.auth.signOut(); rows = []; $("#rows").innerHTML = ""; showLogin(); };
+  $("#reload").onclick = load;
+
+  async function load() {
+    $("#reload").disabled = true;
+    var r = await sb.from("zayavki").select("*").order("created_at", { ascending: false }).limit(500);
+    $("#reload").disabled = false;
+    if (r.error) { $("#rows").innerHTML = '<tr><td colspan="8" class="empty">Nu am putut citi cererile: ' + esc(r.error.message) + '</td></tr>'; return; }
+    rows = r.data || []; render();
+  }
+
+  function render() {
+    var count = { toate: rows.length }; STATUSES.forEach(function (s) { count[s] = rows.filter(function (x) { return x.status === s; }).length; });
+    $("#filters").innerHTML = ["toate"].concat(STATUSES).map(function (s) {
+      return '<button type="button" class="chip" data-f="' + s + '" aria-pressed="' + (filter === s) + '">' + (s === "toate" ? "Toate" : s) + ' <i>' + count[s] + '</i></button>';
+    }).join("");
+    var list = filter === "toate" ? rows : rows.filter(function (x) { return x.status === filter; });
+    $("#sub").textContent = list.length + (list.length === 1 ? " cerere" : " cereri") + (filter === "toate" ? "" : " cu statusul „" + filter + "”") + ". Cele mai noi sunt sus.";
+    $("#rows").innerHTML = list.length ? list.map(function (x) {
+      var d = new Date(x.created_at);
+      return '<tr><td class="mono">' + d.toLocaleDateString("ro-RO") + '<br><span class="muted">' + d.toLocaleTimeString("ro-RO", { hour: "2-digit", minute: "2-digit" }) + '</span></td>' +
+        '<td class="mono"><b>' + esc(x.cod) + '</b><br><span class="muted">' + esc(x.tip) + '</span></td>' +
+        '<td>' + esc(x.serviciu) + '</td>' +
+        '<td>' + esc(x.perioada) + '<br><span class="muted">' + esc(x.detalii) + '</span></td>' +
+        '<td>' + esc(x.pasageri) + (x.persoane ? '<br><span class="muted">' + x.persoane + ' pers.</span>' : '') + '</td>' +
+        '<td class="mono">' + esc(x.telefon) + (x.email ? '<br><span class="muted">' + esc(x.email) + '</span>' : '') + '</td>' +
+        '<td class="mono">' + (x.total_eur ? Number(x.total_eur).toLocaleString("ro-RO") + ' €' : '<span class="muted">la cerere</span>') + '<br><span class="muted">' + esc(x.plata) + '</span></td>' +
+        '<td><select class="st" data-id="' + x.id + '" data-v="' + esc(x.status) + '" aria-label="Status pentru ' + esc(x.cod) + '">' +
+        STATUSES.map(function (s) { return '<option' + (s === x.status ? ' selected' : '') + '>' + s + '</option>'; }).join("") + '</select></td></tr>';
+    }).join("") : '<tr><td colspan="8" class="empty">Nu sunt cereri' + (filter === "toate" ? '' : ' cu statusul „' + esc(filter) + '”') + '.</td></tr>';
+  }
+
+  $("#filters").addEventListener("click", function (e) { var b = e.target.closest("[data-f]"); if (b) { filter = b.dataset.f; render(); } });
+  $("#rows").addEventListener("change", async function (e) {
+    var s = e.target.closest(".st"); if (!s) return;
+    var id = +s.dataset.id, v = s.value, row = rows.filter(function (x) { return x.id === id; })[0], old = row.status;
+    s.disabled = true;
+    var r = await sb.from("zayavki").update({ status: v }).eq("id", id).select();
+    s.disabled = false;
+    if (r.error || !r.data || !r.data.length) { s.value = old; toast("Statusul nu s-a schimbat. Verifică drepturile din Supabase."); return; }
+    row.status = v; toast(row.cod + ": status „" + v + "”"); render();
+  });
+
+  function start() { sb.auth.getSession().then(function (r) { var s = r.data && r.data.session; if (s) showPanel(s.user); else showLogin(); }); }
+})();
+</script>
+</body>
+</html>
